@@ -1,0 +1,611 @@
+calvin(1)		   MS-DOG programmer's manual		       calvin(1)
+
+
+
+	  ------------------------------------------------------------
+	  --                   Calvin version 2.2.                  --
+	  --  Copyright 1988, 1989, 1990, 1992, 1993 by Paul Vojta. --
+	  --     This program may be freely distributed provided:   --
+	  --                                                        --
+	  --  1.  All files (vi.exe, vi.doc, and read.me) are       --
+	  --      distributed together in unmodified form (use of   --
+	  --      universally available file compression software   --
+	  --      is allowed, however); and                         --
+	  --                                                        --
+	  --  2.  No fee is charged other than a nominal processing --
+	  --      charge or a connect time charge.                  --
+	  ------------------------------------------------------------
+
+	  (Earlier versions of Calvin have been released under the name
+	  "Free VI.")
+
+SYNOPSIS
+	vi file ...
+	vi +[number] file ...
+	vi +/pattern file ...
+
+	Wild cards may be used on the command line.
+
+	Calvin also supports the EXINIT environment variable, which may contain
+	:set commands (put spaces in place of equals signs).
+
+
+DESCRIPTION
+	Calvin is a screen text editor written for the IBM PC.  It implements
+	a subset of the Unix screen editor vi(1).  Users familiar with Unix can
+	skip to the command summary at the end of this file.  (Unix is a
+	trademark of Bell Laboratories.)
+
+	This editor requires MS-DOS 2 or higher and 128K of memory.  It will
+	use all available memory for storing the file, etc.; optionally, it can
+	store additional information on disk.
+
+	It supports EGA 43-line and VGA 50-line modes.
+
+
+INSTALLATION
+
+	Installation is fairly straightforward; you should copy vi.exe into
+	some directory mentioned on your PATH command.
+
+	There is one catch, however.  If you want Calvin to use the disk to
+	store information which does not fit into memory (i.e., long files),
+	then you should tell it which drive and directory to use.  This can be
+	done at any time using the :set directory command (see below).
+	However, if you edit long files often, it would perhaps be most
+	convenient to always set it when Calvin starts up.  This can be done by
+	the DOS command line
+
+		set EXINIT=set directory c:/tmp
+
+	if, for example, you wanted to use c:/tmp as the temporary directory.
+	This line can also be placed in the autoexec.bat file.
+
+
+GETTING STARTED
+	To edit an existing file, type
+
+	vi name
+
+	as a DOS command.  The first few lines of the file will then appear on
+	the screen, and you may use any of the editing commands to modify it.
+	For example:
+
+		dw	    delete a word
+		de	    delete a word, leaving punctuation
+		dd	    delete a line
+		3dd	    delete three lines
+		itext<End>  insert text (note that <End> refers to the "End"
+			    key on the numeric keypad)
+		/string	    search for string
+		xp	    transpose characters (actually two commands)
+
+	In addition, all of the keys on the numeric keypad perform as labeled.
+	When you are finished editing, type ZZ or ":x" to write the corrections
+	to disk and quit.  If no corrections were made, then ZZ just quits.  To
+	quit without saving corrections, use ":q!".
+
+	If the file named in the DOS command "vi name" does not exist, Calvin
+	starts with an empty file, into which text can be inserted.  This is
+	how Calvin can be used to create a file.
+
+
+EDITOR MODES
+	Calvin has three modes, all of which occur in at least one of the above
+	commands.  They are,
+
+	o    Command mode.  This is the normal and initial state.  All commands
+	     return here after completion.
+
+	o    Insert mode.  Characters typed in insert mode are, as the name
+	     implies, copied into the file instead of interpreted as commands.
+	     The "Escape", "End", and "Insert" keys return Calvin to command
+	     mode (and vice versa for "Insert").  In this mode the cursor is
+	     larger than in command mode, in order to help you keep track of
+	     the program's mode.
+
+	o    Last line mode.  In this mode the editor is reading text for a ":"
+	     command or a "/" or "?" search.  The text ends with <cr> or
+	     "Escape".  Control-U deletes the text but not the ":", "/", or "?"
+	     (unless there is no text).
+
+
+COUNTS BEFORE EDITOR COMMANDS
+	Many Calvin commands can be preceded by a number.  The effect of this
+	number is usually to repeat the effect of the command.  Sometimes,
+	however, it has other meanings.  In many cases it is ignored.
+
+
+THE SCREEN
+	Most of the screen is used to display the file; the last line is used
+	for last line mode and for messages.  Lines past the end of the file
+	appear as lines consisting of a single tilde ("~").  Tabs are expanded
+	to columns 9, 17, 25, ... (although this can be changed).  Long lines
+	are wrapped around, so that they may take up several lines of the
+	screen.  "@" lines indicate that the next line is too long to fit on
+	the remainder of the screen.  The user should not create lines too long
+	to fit on a screen, although Calvin will not stop him or her from
+	trying.
+
+	In case DOS (or a program bug) scrambles the screen, ^L (Control-L)
+	will restore it to what it should be.
+
+	If a command causes the cursor to move to a part of the file which is
+	not currently displayed on the screen, Calvin will automatically scroll
+	as necessary.  Calvin also has commands to explicitly request scrolling:
+
+	    ^F or PgDn	Move the screen Forward one screenful, keeping the last
+			two lines of the old screen as the first two lines of
+			the new.
+	    ^B or PgUp	Move Backwards one screenful.
+	    ^D		Move Down 1/2 screen.
+	    ^U		Move Up 1/2 screen.
+	    ^E		Move Down one line.
+	    ^Y		Move Up one line.
+
+
+MOTION COMMANDS
+	The arrows on the numeric keypad perform as labeled.  Also, Calvin has
+	a rich assortment of other commands to move the cursor.  These are:
+
+	    + or <cr>	Move the cursor to the first nonblank character of the
+			next line in the file.  (All motions referring to lines
+			put the cursor on the first nonblank character of that
+			line.)
+	    -		Move to the previous line.
+	    $		Move to the end of the current line.
+	    0		Move to the beginning of the line.
+	    fx		Find the next occurrence of the given character.  The
+			search is limited to the current line.
+	    Fx		Same as fx, backwards.
+	    ;		Repeat the previous f or F.
+	    /string<cr>	Search for the next occurrence of the given string.
+			This search starts at the current position, but may
+			wrap around the beginning of the file.
+	    ?string<cr>	Same as "/", searching backwards.
+	    n		Repeat last "/" or "?" search.
+	    N		Same as "n", in the opposite direction.
+	    H or Home	Move the cursor to the first line of the screen.
+	    M		Move to the middle line of the screen.
+	    L or End	Move to the last line of the screen.
+	    nG		Move to the <n>th line of the file.
+	    G		Move to the last line.
+	    %		Move to the matching parenthesis, bracket, or brace.
+
+
+SEARCHING
+	The backslash character `\' has a special meaning in strings used for
+	searching.  Generally, it either adds or removes special meaning to or
+	from the following character.  Currently, this means that \0 is
+	translated into the null character (Calvin treats null characters just
+	like any others), and that any other character is taken literally when
+	preceded by a backslash.  Otherwise, a '/' indicates the end of a '/'
+	search string, and likewise indicates the end of a reverse search
+	pattern.  So if you want to search forward for the string \/, use /\\\/
+	(the first slash means search forwards, the next two backslashes
+	translate into one backslash, the \/ then is translated into a single
+	forward slash).  As for other `magic' characters available under
+	Unix<tm> vi, Calvin has not implemented them yet.
+
+	These comments apply equally well to search strings present in ':'
+	commands or '+' parameters.
+
+
+THE DELETE OPERATOR
+	If one of the above motions is preceded by the letter "d", then Calvin
+	will delete the text, from the old position to the new position.  This
+	called an operator because it changes the effect of the ensuing motion
+	command.  The repetition count for the motion command may either
+	precede or follow the "d"; the effect is the same.
+
+	Also, "d" may be doubled (i.e. dd or 7dd) to delete one or several
+	lines.  If D is capitalized, it deletes through the end of the line.
+
+	Other operators are "c" (change), "y" (yank), and "!" (shell filter);
+	they are described later.
+
+
+OTHER DELETION COMMANDS
+	    x or Delete	Functions the same as d<Space>; deletes one character.
+	    X		Deletes backwards one character; same as dh.
+
+
+INSERT MODE
+	A number of commands place the user in insert mode.  They are:
+	   i	Enter insert mode, inserting text before the current character.
+	   a	Insert after the current character.
+	   A	Insert after end of line.
+	   o	Open a new line after the current line and enter insert mode.
+	   O	Open before current line.
+	   c<motion>, cc, C
+		"c" is an operator, similar to "d".  It deletes text and leaves
+		the editor in insert mode.  For example, "cw" changes the
+		current word; "cc", the current line.
+
+	To exit insert mode, use the Esc key, the Ins key, or the End key.  To
+	delete all characters typed so far in the current line, type Control-U.
+	Insert mode also supports Control-W to delete the most recently typed
+	word, and Control-V to strip the next character of any special meaning.
+	In this version of vi, the backspace key will also allow you to delete
+	a mistakenly typed carriage return.
+
+
+OTHER MODIFICATION COMMANDS
+	    rx	Replaces the current character with the character  x.
+	    J	Joins two lines; i.e. concatenates them, adding a space between
+		them.
+
+
+UNDO AND REPEAT
+	In case of a mistake, the "u" command will undo the effect of the last
+	command which modified the file.  Only the most recent change can be
+	undone in this way.
+
+	The dot command (".") will repeat the last command which changed the
+	file.
+
+
+MOVING TEXT
+	To move part of a file, one uses the operations of yanking and putting.
+	Yanking consists of copying part of a file into a special buffer;
+	putting copies that buffer into another part of the file.
+
+	To yank text, use the "y" operator (y<motion>, yy, or Y) in the same
+	manner as the delete or change operators.  Then move the cursor and use
+	the put command (p) or put-before command (P) to put the text
+	elsewhere.  For example,
+
+		5G yy 9G p
+
+	places another copy of the fifth line of the file after the ninth line.
+
+	The delete and change operators also save the deleted text in a yank
+	buffer.  Thus the command "xp" (actually two commands) exchanges two
+	characters by deleting the first and reinserting it after the second.
+
+	In addition to the default yank buffer, Calvin has 26 other yank
+	buffers, tagged by (lower-case) letters of the alphabet.  To let a
+	yank, put, delete, or change command command refer to one of these
+	buffers, precede the command with the quote character and the letter of
+	the buffer.
+
+	Transferring text between files can be done in one of several ways.
+	First, the command
+
+		:r name
+
+	reads the named file into the current file, following the current line.
+	You can also indicate that the file is to be read at a given line by
+	typing <n>:r name, where <n> is the line number (0 to insert at the
+	beginning of the file).
+
+	The reverse of this operation is the command,
+		<n>,<m>:w name
+	which writes lines <n> through <m>, inclusive, into a file of the given
+	name, destroying the file's previous contents, if any.
+
+	The last way of transferring text between files is to yank one or more
+	pieces of text, switch the main file via
+
+		:e name		or	:e! name
+
+	and then put the text into the new main file.
+
+
+MARKING POSITIONS IN THE FILE
+	You can mark your current position in the file by typing `mx', where
+	`x' may be any lower case letter.  You can then return to that spot by
+	typing 'x to return to that line or `x to return to the exact
+	character.  Of course, you can also use 'x or `x in an operator, e.g.,
+	m'x or y`x.  Also, '' or `` will return to the starting point of the
+	last `/', `?', `n', `N', `G', `H', `M', `L', `%', ``', or `'' motion.
+
+
+END-OF-LINE CONVERSIONS
+	Internally, Calvin uses the Unix<tm> end-of-line convention, that the
+	single character '\n' indicates the end of a line.  Unless otherwise
+	specified, it will convert all DOS '\r\n' end-of-lines to this
+	convention when reading a file, in addition to recognizing a single
+	'\n' as an end of line.  When writing files, by default Calvin will
+	write end-of-lines in the DOS manner.  A consequence of this is that
+	Calvin can read a file with Unix<tm> end-of-lines and interpret it
+	correctly without you even noticing.  You can even use Calvin to
+	convert from Unix<tm> format to DOS format by doing `vi file' and
+	immediately `:wq'.
+
+
+	You can also convert back to Unix<tm> format by doing:
+
+		vi file
+		:set binary
+		:wq
+
+	This is a little less convenient, but you probably won't have occasion
+	to use this feature often.
+
+
+HELPFUL HINTS
+	In addition to ending insert and last line modes, the Escape key can be
+	used to delete a partially complete command.  It also momentarily
+	enlarges the cursor.  This makes it easier to see--it is easy to lose
+	the cursor after a locate operation.
+
+	To insert an escape code into the file, use control-[ or Alt-27, or
+	precede it with ^V in insert mode.
+
+	One feature that Calvin currently lacks is the ability to change all
+	occurrences of a given string to another string.  This can be done with
+	alternate uses of the "n" and "." commands (and a little patience).
+
+
+MEMORY USAGE
+	By default, Calvin will use all available memory in the lower 640K to
+	store the file being edited and yanked text, etc.  You can also get
+	Calvin to use disk space as well, by means of the `:set directory'
+	option described below.  In either case, however, it is always a
+	possibility that you will run out of memory.  In that case, you will
+	receive the message `Out of memory--save what you have, immediately.'
+	It is strongly suggested that you do so, as the editor will be in an
+	unstable state; continuing to use it after such a message would likely
+	result in loss of data.
+
+THE NAME
+	As noted already, Calvin has formerly been called "Free VI."  Since the
+	appearance of Stevie and Elvis, I decided that a more unique name was
+	necessary.  Hence the name "Calvin", which has the requisite two-letter
+	substring, as well as the string "Cal", indicating that it came from
+	"Cal" (University of California), Berkeley.  (And also, it's seven
+	years old :-> ).
+
+
+------------------------------------------------------------
+
+The above is a tutorial introduction to some of the most common Calvin
+commands.  A list of all Calvin commands appears in the command summary, below.
+
+				COMMAND SUMMARY
+				------- -------
+
+
+Colon commands:
+
+    :edit name			edit new file
+    :edit +<n> name		edit new file, starting at line <n>
+    :edit +/pattern name	edit new file, starting at the first occurrence
+				of the given string.
+    :edit! [+colon_command] name
+				discard corrections and edit new file
+    :edit[!] [+colon_command] #	edit the file last edited.
+
+    :file			print file name, status, and length.
+    :file name			change the name of the file being edited to
+				`name'.
+    :next			edit the next file in the command line
+    :quit			quit the editor
+    :quit			abort (quit without saving corrections)
+    :read file			read the given file and insert it after the
+				current line
+    :<n>read file		read the given file and insert it after line
+				<n>.
+    :r				synonym for :read
+    :r !command			read in the output of the given DOS command
+    :rewind			return to editing the first file given on the
+				vi command line (cf. :next)
+    :set option=value		set the given option to the given value
+				the `=' may be replaced by a space (useful in
+				EXINIT).
+    :set option			set the given boolean option to TRUE
+    :set nooption		set the given boolena option to FALSE
+    :set option?		print the current value of the option
+    :set all			print the values of all options
+    :set			print the values of all options which are not
+				equal to their defaults
+    :shell			escape to DOS (return via EXIT)
+    :version			print Calvin's version number.  Currently the
+				message printed is:  "Calvin version 2.1.  (C)
+				Copyright 1987, 1988, 1989, 1990, 1992 by Paul
+				Vojta.  For copying conditions, please see the
+				documentation file."
+    :wq [file]			synonym for :write followed by :quit
+    :write			write the current file to disk, using the name
+				it was edited using
+    :write file			write the current file to disk, using the name
+				given
+    :write !command		pipe the current file into the given DOS
+				command; note the spacing.
+    :<n>,<m>write [file]	write lines <n> through <m> to disk
+    :w				synonym for :write
+    :x				synonym for :wq (if the current file has been
+				changed), or :quit (if not)
+    :<n>=			print the value of <n>
+    :<n>			move to line <n>
+    :!command			execute the given DOS command
+    :!!				execute the last DOS command
+
+Command names (and :set options, below) may be abbreviated by shortening them,
+provided they still refer to a unique command.  They may be combined on one
+line by separating them by `|'.
+
+Addresses (written as <n> or <m> in the above list) may be given by one of the
+following:
+
+	<line number>
+	/pattern/
+	?pattern?
+	'a, ..., 'z
+	.	(refers to the current line number)
+	$	(refers to the end of the file)
+
+
+You may also use the following synonyms in visual mode:
+
+	ZZ	:x
+	^6	:e #
+	^G	:f
+
+
+Options for the :set command:
+
+	autowrite (synonym aw) (default false)
+		If the file has been modified, then automatically write it to
+		disk for any :edit, :quit, :rewind, or :next commands.
+
+	binary	(default false)
+		Read and write files in binary mode (that is, without end-of-
+		line conversions).  See the section END-OF-LINE CONVERSIONS.
+
+	cpmeof	(default false)
+		Under early versions of DOS, text files were supposed to end in
+		^Z (Control-Z).  This option causes Calvin to write a ^Z at the
+		ends of files that it creates.
+
+	directory (default none)
+		Directory to use for storing temporary files.  This option may
+		only be changed once.
+
+	dosesc	(default false)
+		Causes the Escape key to act as a line delete character instead
+		of as the character which ends insert mode.  (You can always
+		leave insert mode by using the End key.)  The usual line delete
+		character is ^U (Control-U).
+
+	eolateof (default true)
+		Indicates that the file being edit ends with an end-of-line
+		character.  Usually this is the case.  This flag is
+		automatically set or cleared when editing a file, and is
+		automatically cleared when doing a line change command at the
+		end of a file.
+
+	ignorecase (synonym ic) (default false)
+		Causes Calvin to ignore the case of letters when searching for
+		strings.
+
+	marginbell (synonym mb) (default 0, none)
+		Causes Calvin to beep when you reach the indicated column in
+		insert mode.
+
+	printable (default 126)
+		Gives the highest character value to be printed as is, instead
+		of being translated into, e.g., \127.
+
+	showmode (default false)
+		Causes Calvin to show its mode (e.g., INSERT MODE) in the lower
+		right-hand corner of the screen.
+
+	tabstop (default 8)
+		Indicates the number of characters per tab stop.
+
+	thoroughshell (default False)
+		Instructs calvin to use the COMSPEC variable to load the
+		command interpreter when running every DOS command, not just
+		the internal ones.  This is useful if you use a different
+		command interpreter, such as 4dos, which has a different set of
+		internal commands or other features which you wish to use.
+
+	vidcompat (default 0)
+		Indicates the compatibility lever for video operations.
+		Setting it to a higher value may cause some screen-related
+		problems to go away if you have slightly non-standard hardware.
+		With vidcompat=1, Calvin does not use the alternate screen
+		feature of CGA adapters, and with vidcompat=2, it does not save
+		and restore the screen after editing.
+	
+
+Character motions:
+
+    h or Backspace or Leftarrow  back <n> character(s)
+    Space or l or Rightarrow   forward <n> characters
+    j or ^J or ^N or Downarrow   down <n> lines, same column
+    k or ^P or Uparrow     up <n> lines, same column
+    $		down <n-1> lines, end of line
+    0		beginning of line
+    ^		first non-white character in line
+    w		next <n> words
+    b		back <n> words
+    e		end of <n>th word from here
+    W, B, E	same as w, b, e, with blank-delimited words
+    |		move to column <n>
+    %		match (), [], or {}.
+    `x		character of mx command (x=any lower case letter)
+    ``		start of last /?nNGHML%' or ` motion
+
+    /string	search
+    ?string	backwards search
+    /<cr> or ?<cr> forward or backwards search, same pattern
+    /string/+3	the third line past the next occurrence of the given string
+    n		repeat last search
+    N		repeat last search, opposite direction
+
+    fx		find next <n>th occurrence of x
+    Fx		find previous <n>th x
+    tx		next <n>th x (not inclusive)
+    Tx		previous <n>th x (not inclusive)
+    ;		repeat last f, F, t, or T
+    ,		reverse of ,
+
+
+Line motions:
+
+    + or <cr>	<n>th next line (first nonwhite)
+    -		<n>th previous line
+		current line or <n-1>st next line
+    H or Home	top of screen (or <n>th line on screen)
+    M		middle of screen
+    L or End	last line of screen (or <n>th line from bottom)
+    nG		go to <n>th line (end default)
+    'x		line of mx command (x=any lower case letter)
+    ''		start of last /?nNGHML%' or ` motion
+
+
+Operators:
+
+    d<motion>, dd, D	delete
+    c<motion>, cc, C	change
+    y<motion>, yy, Y	yank
+		(Note that in this implementation 'Y' is equivalent to
+		'y$' instead of 'yy').
+    !<motion>, !!	filter through a DOS command
+
+
+Insert Mode:
+
+    i or Insert	insert before current character
+    a		insert after current character
+    I		insert before first nonblank character in line
+    A		append to end of line
+    o		open after current line
+    O		open before current line
+
+
+Other modification commands:
+
+    x or Delete	delete character; same as "d "
+    X		delete previous character; same as "dh"
+    s		delete character and enter insert mode; same as "c "
+    S		delete line and enter insert mode; same as "cc"
+    r		replace <n> characters by the given one
+    J		join two lines
+    p		put yanked text
+    P		put yanked text before current line or character
+    u		undo previous command
+    .		repeat previous command
+
+
+Screen commands:
+
+    ^L		redraw screen
+    ^F or PgDn	forward <n> screens
+    ^B or PgUp	back <n> screens
+    ^U, ^D	up (or down) 1/2 screen (<n> changes the number of lines
+		counted as 1/2 screen)
+    ^Y, ^E	up (or down) <n> lines
+    z<cr> or zh	redraw with current line (or <n>th line) on top
+    z. or zm	redraw with current line (or <n>th line) in middle
+    z- or zl	redraw with current line (or <n>th line) at bottom
+    z+		redraw with current bottom line (or <n>th line) at top
+
+
+Miscellaneous:
+
+    mx		mark here as mark `x' (Cf. 'x and `x above.)
+		(x = any lower case letter)
